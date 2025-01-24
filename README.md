@@ -1,1 +1,0 @@
-# vecskills_delivery
