@@ -11,10 +11,10 @@
             <ul class="ms-auto navbar-nav">
                 <?php if(isset($_SESSION['user_login'])) { ?>
                 <li class="dropdown nav-item">
-                    <a href="" class="dropdown-toggle nav-link" data-bs-toggle="dropdown"><?= $user['fname']. " ". $user['lname'] ?></a>
+                    <a href="" class="dropdown-toggle nav-link" data-bs-toggle="dropdown"><?= $useAuth['fname']; ?></a>
                     <ul class="dropdown-menu">
                         <li><a href="" class="dropdown-item nav-content" data-content="profile">โปรไฟล์</a></li>
-                        <li><a href="logout.php" class="dropdown-item text-danger">ออกจากระบบ</a></li>
+                        <li><a href="class/handle.php?logout" class="dropdown-item text-danger">ออกจากระบบ</a></li>
                     </ul>
                 </li>
                 <?php } else { ?> 
@@ -50,8 +50,8 @@
         <?php } else { ?>
         <a href="" class="nav-link nav-content" data-content="shoptype">รายการอาหาร</a>
         <a href="" class="nav-link nav-content" data-content="cart">ตะกล้า
-            <?php if($dataCount) { ?>
-            <span class="badge bg-light text-danger"><?php echo $dataCount; ?></span>
+            <?php if($totalQty) { ?>
+            <span class="badge bg-light text-danger"><?= $totalQty ?></span>
             <?php } ?>
         </a>
         <a href="" class="nav-link nav-content" data-content="oldlist">ประวัติการสั่งซื้อ</a>
