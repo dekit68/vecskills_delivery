@@ -2,7 +2,6 @@
 class Users {
     private $pdo;
     private $table_name = "users";
-
     public $email;
     public $password;
     public $role;
@@ -23,37 +22,26 @@ class Users {
     }
 
     public function register() {
-        header('location: /');
         if ($this->isEmailExists($this->email)) {
             echo "Error: Email already exists!";
             return false;
         }
-
-        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (email, password, role, fname, lname, address, phone) VALUES (:email, :password, :role, :fname, :lname, :address, :phone)");
-
-        $this->email = filter_var($this->email, FILTER_SANITIZE_EMAIL);
-        $this->role = strip_tags($this->role);
-        $this->fname = strip_tags($this->fname);
-        $this->lname = strip_tags($this->lname);
-        $this->address = strip_tags($this->address);
-        $this->phone = strip_tags($this->phone);
-
+        
         $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
-
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":password", $hashedPassword);
-        $stmt->bindParam(":role", $this->role);
-        $stmt->bindParam(":fname", $this->fname);
-        $stmt->bindParam(":lname", $this->lname);
-        $stmt->bindParam(":address", $this->address);
-        $stmt->bindParam(":phone", $this->phone);
-
+        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (email, password, role, fname, lname, address, phone) VALUES (:email, :password, :role, :fname, :lname, :address, :phone)");
+        $stmt->execute([
+            ':email' => filter_var($this->email, FILTER_SANITIZE_EMAIL),
+            ':password' => $hashedPassword,
+            ':role' => strip_tags($this->role),
+            ':fname' => strip_tags($this->fname),
+            ':lname' => strip_tags($this->lname),
+            ':address' => strip_tags($this->address),
+            ':phone' => strip_tags($this->phone)
+        ]);
+    
         try {
-            if ($stmt->execute()) {
-                return true;
-            } else {
-                throw new Exception("Unable to create user.");
-            }
+            header('Location: /');
+            return true;
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             return false;
