@@ -86,16 +86,29 @@ class Users {
             $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$_SESSION['user_login']]);
             $user = $stmt->fetch();
+    
             if ($user) {
-                return $user;
+                $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM shop WHERE user_id = ?");
+                $stmt->execute([$user['id']]);
+                $shopExists = $stmt->fetchColumn();
+    
+                if ($shopExists > 0) {
+                    $stmt = $this->pdo->prepare("SELECT * FROM shop WHERE user_id = ?");
+                    $stmt->execute([$user['id']]);
+                    $shop = $stmt->fetch();
+    
+                    return ['user' => $user, 'hashshop' => true, 'shop' => $shop]; 
+                }
+    
+                return ['user' => $user, 'hashshop' => false];
             } else {
                 session_destroy();
                 return null;
             }
         } else {
-            return null; 
+            return null;
         }
-    }
+    }    
 
     public function logOut() {
         unset($_SESSION['user_login']);

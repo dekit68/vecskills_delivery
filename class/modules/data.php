@@ -46,12 +46,17 @@ class Data {
         }
     }
 
-    public function getOne($column, $value) {
+    public function getCartWithFoodDetails($user_id) {
         try {
-            $stmt = $this->pdo->prepare("SELECT * FROM $this->table_name WHERE {$column} = :value");
-            $stmt->bindParam(':value', $value);
+            $sql = "SELECT cart.*, food.name AS food_name, food.food_img AS food_img 
+                    FROM cart 
+                    JOIN food ON food.id = cart.food_id 
+                    WHERE cart.uses_id = :user_id";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(":user_id", $user_id, PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetch();
+            return $stmt->fetchAll();
         } catch (PDOException $e) {
             return "Error: " . $e->getMessage();
         }

@@ -1,26 +1,26 @@
 <?php 
 
-$stmt = $pdo->prepare("SELECT * FROM shop_type");
-$stmt->execute();
-$shop_type = $stmt->fetchAll();
+// $stmt = $pdo->prepare("SELECT * FROM shop_type");
+// $stmt->execute();
+// $shop_type = $stmt->fetchAll();
 
-if ($hash) {
-    $stmt = $pdo->prepare("SELECT food.*, food.type_id, food.shop_id, shop.name AS shopname, food_type.name AS foodtype FROM food JOIN shop ON food.shop_id = shop.id JOIN food_type ON food.type_id = food_type.id WHERE shop.id = ?");
-    $stmt->execute([$hash['id']]);
-    $listFood = $stmt->fetchAll();
+// if ($hash) {
+//     $stmt = $pdo->prepare("SELECT food.*, food.type_id, food.shop_id, shop.name AS shopname, food_type.name AS foodtype FROM food JOIN shop ON food.shop_id = shop.id JOIN food_type ON food.type_id = food_type.id WHERE shop.id = ?");
+//     $stmt->execute([$hash['id']]);
+//     $listFood = $stmt->fetchAll();
     
-    $stmt = $pdo->prepare("SELECT * FROM food_type WHERE shop_id = ?");
-    $stmt->execute([$hash['id']]);
-    $food_type = $stmt->fetchAll();
+//     $stmt = $pdo->prepare("SELECT * FROM food_type WHERE shop_id = ?");
+//     $stmt->execute([$hash['id']]);
+//     $food_type = $stmt->fetchAll();
     
-    $stmt = $pdo->prepare("SELECT * FROM orders WHERE shop_id = ?");
-    $stmt->execute([$hash['id']]);
-    $orders = $stmt->fetchAll();
-} else {
-    $listFood = [];
-    $food_type = [];
-    $orders = [];
-}
+//     $stmt = $pdo->prepare("SELECT * FROM orders WHERE shop_id = ?");
+//     $stmt->execute([$hash['id']]);
+//     $orders = $stmt->fetchAll();
+// } else {
+//     $listFood = [];
+//     $food_type = [];
+//     $orders = [];
+// }
 
 $all = 0;
 
@@ -39,7 +39,7 @@ $all = 0;
     <?php include 'widgets/modal.php'; ?>
     <div class="container py-5">        
         <?php include 'widgets/status.php'; ?>
-        <?php if(empty($hash)) { ?>
+        <?php if($useAuth['hashshop']) { ?>
         <div class="contents" id="access">
             <h1>คำขอเปิดร้าน 🍕</h1>
             <hr>
@@ -71,7 +71,7 @@ $all = 0;
             </form>
         </div>
 
-        <?php } elseif ($hash['approve'] == 0) { ?>
+        <?php } elseif (isset($useAuth['shop']) && $useAuth['shop']['approve'] == 0) { ?>
         <div class="contents" id="access">
             <div class="alert alert-success">
                 คำขอของคุณได้ถูกส่งไปแล้วรอการอนุมัติจากแอดมินสักครู่ 😉
