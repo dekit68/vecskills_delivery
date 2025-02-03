@@ -27,7 +27,7 @@ route($base, function(){
             $table_shop = new Data($pdo, 'shop');
             $table_food = new Data($pdo, 'food');
             $table_order = new Data($pdo, 'orders');     
-            $table_cart = new Data($pdo, 'cart');   
+            $table_cart = new Data($pdo, 'cart');
             include 'views/services/user.php';
         }
     }

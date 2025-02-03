@@ -4,14 +4,9 @@
     $listFood = $table_food->getFoodWithDetails();
     $orders = $table_order->getWhere("user_id = ?", [$_SESSION['user_login']]);
     $totalQty = $table_cart->getTotalQty($_SESSION['user_login']);
-    // $stmt = $pdo->prepare("SELECT cart.*, food.name AS food_name, food.food_img AS food_img FROM cart JOIN food ON food.id = cart.food_id WHERE uses_id = ?");
-    // $stmt->execute([$_SESSION['user_login']]);
-    // $cart = $stmt->fetchAll();
-    // $all = 0;
-
+    $cart = $table_cart->getCartWithFoodDetails($_SESSION['user_login']);
+    $all = 0;
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 

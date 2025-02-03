@@ -61,7 +61,6 @@
                     <div class="form-floating mb-3">
                         <select name="role" class="form-control" required>
                             <option value="user">User</option>
-                            <option value="admin">Admin</option>
                             <option value="manager">Manager</option>
                             <option value="delivery">Delivery</option>
                         </select>
