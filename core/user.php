@@ -5,32 +5,6 @@ session_start();
 header("location: $base");
 
 if ($_GET['type'] === "update") {
-    $email = $_POST['email'];
-    $fname = $_POST['fname'];
-    $lname = $_POST['lname'];
-    $address = $_POST['address'];
-    $phone = $_POST['phone'];
-    $profile_img = NULL;
-
-    if (isset($_FILES['profile_img']) && $_FILES['profile_img']['error'] === UPLOAD_ERR_OK) {
-        $newName = time() .'_'. $_FILES['profile_img']['name'];
-        $uploadDir = '../uploads/profile/'. $newName;
-	$profile_img = $url.$base.'uploads/profile/'. $newName;
-        move_uploaded_file($_FILES['profile_img']['tmp_name'], $uploadDir);
-    }
-
-    if ($email && $fname && $lname && $address && $phone) {
-        try {
-            $stmt = $pdo->prepare("UPDATE users SET email = ?, fname = ?, lname = ?, address = ?, phone = ? ". ($profile_img ? ', profile_img = ?' : '') ." WHERE id = ?");
-            $param = [$email, $fname, $lname, $address, $phone];
-            if ($profile_img) $param[] = $profile_img;
-            $param[] = $_SESSION['user_login'];
-            $stmt -> execute($param);
-            $_SESSION['success'] = "อัพเดทโปรไฟล์ $fname $lname สำเร็จ";
-        } catch (PDOException $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
-    }
    
 } elseif ($_GET['type'] === "change") {
     $password = $_POST['op'];

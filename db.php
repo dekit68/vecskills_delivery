@@ -1,5 +1,4 @@
 <?php 
-
 class Database {
     private $host = "localhost";
     private $user = "root";
@@ -21,19 +20,4 @@ class Database {
         }
     }
 }
-
-
-
-// if (isset($_SESSION['user_login'])) {
-//     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-//     $stmt->execute([$_SESSION['user_login']]);
-//     $user = $stmt->fetch();
-
-//     $stmt = $pdo->prepare("SELECT * FROM shop WHERE user_id = ?");
-//     $stmt->execute([$_SESSION['user_login']]);
-//     $hash = $stmt->fetch();
-// }
-
-// require 'base.php';
-
 ?>
