@@ -1,1 +1,1 @@
-🗝️ class/core is old method
+# 🗝️ class/core is old method
