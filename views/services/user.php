@@ -1,29 +1,13 @@
 <?php
-    $stmt = $pdo->prepare("SELECT * FROM shop");
-    $stmt->execute();
-    $shops = $stmt->fetchAll();
-
-    $stmt = $pdo->prepare("SELECT * FROM food_type");
-    $stmt->execute();
-    $food_types = $stmt->fetchAll();
-
-    $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ?");
-    $stmt->execute([$_SESSION['user_login']]);
-    $order = $stmt->fetchAll();
-
-    $stmt = $pdo->prepare("SELECT food.*, food.type_id, food.shop_id, shop.name AS shopname, food_type.name AS foodtype FROM food JOIN shop ON food.shop_id = shop.id JOIN food_type ON food.type_id = food_type.id");
-    $stmt->execute();
-    $listFood = $stmt->fetchAll();
-
-    $stmt = $pdo->prepare("SELECT cart.*, food.name AS food_name, food.food_img AS food_img FROM cart JOIN food ON food.id = cart.food_id WHERE uses_id = ?");
-    $stmt->execute([$_SESSION['user_login']]);
-    $cart = $stmt->fetchAll();
-
-    $stmt = $pdo->prepare("SELECT SUM(qty) FROM cart WHERE uses_id = ?");
-    $stmt->execute([$_SESSION['user_login']]);
-    $dataCount = $stmt->fetchColumn();
-
-    $all = 0;
+    $allShops = $table_shop->getAll();
+    $allFood_type = $table_food_type->getAll();
+    $listFood = $table_food->getFoodWithDetails();
+    $orders = $table_order->getWhere("user_id = ?", [$_SESSION['user_login']]);
+    $totalQty = $table_cart->getTotalQty($_SESSION['user_login']);
+    // $stmt = $pdo->prepare("SELECT cart.*, food.name AS food_name, food.food_img AS food_img FROM cart JOIN food ON food.id = cart.food_id WHERE uses_id = ?");
+    // $stmt->execute([$_SESSION['user_login']]);
+    // $cart = $stmt->fetchAll();
+    // $all = 0;
 
 ?>
 
@@ -52,8 +36,8 @@
                     <div class="form-floating">
                         <select name="" class="form-select" id="filtershop">
                             <option value="">ทั้งหมด</option>
-                            <?php foreach($shops as $shop):  ?>
-                            <option value="<?= $shop['id'] ?>"><?= $shop['name'] ?></option>
+                            <?php foreach($allShops as $data):  ?>
+                            <option value="<?= $data['id'] ?>"><?= $data['name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                         <label for="">เลือกร้านอาหาร</label>
@@ -66,12 +50,12 @@
                             <option value="">ทั้งหมด</option>
                             <?php 
                                 $XXX = [];
-                                foreach($food_types as $food_type):  
-                                if (!in_array($food_type['name'], $XXX)):
+                                foreach($allFood_type as $data):  
+                                if (!in_array($data['name'], $XXX)):
                             ?>
-                            <option value="<?= $food_type['name'] ?>"><?= $food_type['name'] ?></option>
+                            <option value="<?= $data['name'] ?>"><?= $data['name'] ?></option>
                             <?php 
-                                $XXX[] = $food_type['name']; 
+                                $XXX[] = $data['name']; 
                                 endif;
                                 endforeach; 
                             ?>

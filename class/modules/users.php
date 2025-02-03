@@ -2,94 +2,104 @@
 class Users {
     private $pdo;
     private $table_name = "users";
+
     public $email;
     public $password;
+    public $role;
+    public $fname;
+    public $lname;
+    public $address;
+    public $phone;
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
     }
 
-    public function login() {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $stmt = $this->pdo->prepare("SELECT * FROM $this->table_name WHERE email = ?");
-        $stmt->execute([$email]);
-        $UserEx = $stmt->fetch();
-        if ($UserEx) {
-            if ($UserEx['status'] == 1) {
-                if (password_verify($password, $UserEx['password'])) {
-                    $_SESSION['user_login'] = $UserEx['id'];
-                    $_SESSION['role'] = $UserEx['role'];
-                    $_SESSION['success'] = "เข้าสู่ระบบสำเร็จ";
-                    return true;
-                } else {
-                    $_SESSION['error'] = "รหัสผ่านไม่ถูกต้อง";
-                }
-            } else {
-                $_SESSION['error'] = "รอแอดมินอนุมัติ";
-            }
-        } else {
-            $_SESSION['error'] = "ไม่มีผู้ใช้ $email ในระบบ";
-        }
-        return false;
+    public function isEmailExists($email) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM $this->table_name WHERE email = :email");
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0; 
     }
 
     public function register() {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        $role = $_POST['role'];
-        $fname = $_POST['fname'];
-        $lname = $_POST['lname'];
-        $address = $_POST['address'];
-        $phone = $_POST['phone'];
+        header('location: /');
+        if ($this->isEmailExists($this->email)) {
+            echo "Error: Email already exists!";
+            return false;
+        }
 
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    
+        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (email, password, role, fname, lname, address, phone) VALUES (:email, :password, :role, :fname, :lname, :address, :phone)");
+
+        $this->email = filter_var($this->email, FILTER_SANITIZE_EMAIL);
+        $this->role = strip_tags($this->role);
+        $this->fname = strip_tags($this->fname);
+        $this->lname = strip_tags($this->lname);
+        $this->address = strip_tags($this->address);
+        $this->phone = strip_tags($this->phone);
+
+        $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
+
+        $stmt->bindParam(":email", $this->email);
+        $stmt->bindParam(":password", $hashedPassword);
+        $stmt->bindParam(":role", $this->role);
+        $stmt->bindParam(":fname", $this->fname);
+        $stmt->bindParam(":lname", $this->lname);
+        $stmt->bindParam(":address", $this->address);
+        $stmt->bindParam(":phone", $this->phone);
+
         try {
-            $stmt = $this->pdo->prepare("SELECT * FROM $this->table_name WHERE email = ?");
-            $stmt->execute([$email]);
-
-            if ($stmt->fetch()) {
-                $_SESSION['error'] = "มีผู้ใช้ $email อยู่แล้ว";
+            if ($stmt->execute()) {
+                return true;
             } else {
-
-                $status = ($role === "admin") ? 1 : 0;
-                $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (email, password, role, fname, lname, address, phone, status) VALUES (?,?,?,?,?,?,?,?)");
-                $stmt->execute([$email, $hashedPassword, $role, $fname, $lname, $address, $phone, $status]);
-
-                $_SESSION['success'] = "ลงทะเบียน $fname $lname สำเร็จ";
+                throw new Exception("Unable to create user.");
             }
         } catch (PDOException $e) {
-            $_SESSION['error'] = "เกิดข้อผิดพลาด: " . $e->getMessage();
+            echo "Error: " . $e->getMessage();
+            return false;
         }
     }
 
-    public function update() {
-        $email = $_POST['email'];
-        $fname = $_POST['fname'];
-        $lname = $_POST['lname'];
-        $address = $_POST['address'];
-        $phone = $_POST['phone'];
-        $profile_img = NULL;
-    
-        if (isset($_FILES['profile_img']) && $_FILES['profile_img']['error'] === UPLOAD_ERR_OK) {
-            $newName = time() .'_'. $_FILES['profile_img']['name'];
-            $uploadDir = '../uploads/profile/'. $newName;
-            $profile_img = $url.$base.'uploads/profile/'. $newName;
-            move_uploaded_file($_FILES['profile_img']['tmp_name'], $uploadDir);
-        }
-    
-        if ($email && $fname && $lname && $address && $phone) {
-            try {
-                $stmt = $this->pdo->prepare("UPDATE $this->table_name SET email = ?, fname = ?, lname = ?, address = ?, phone = ? ". ($profile_img ? ', profile_img = ?' : '') ." WHERE id = ?");
-                $param = [$email, $fname, $lname, $address, $phone];
-                if ($profile_img) $param[] = $profile_img;
-                $param[] = $_SESSION['user_login'];
-                $stmt -> execute($param);
-                $_SESSION['success'] = "อัพเดทโปรไฟล์ $fname $lname สำเร็จ";
-            } catch (PDOException $e) {
-                $_SESSION['error'] = $e->getMessage();
+    public function verifyPassword() {
+        header('location: /');
+        $query = "SELECT id, password, role FROM $this->table_name WHERE email = :email LIMIT 1";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(":email", $this->email);
+        $stmt->execute();
+
+        if ($stmt->rowCount() == 1) {
+            $data = $stmt->fetch();
+            $hashedPassword = $data['password'];
+
+            if (password_verify($this->password, $hashedPassword)) {
+                $_SESSION['user_login'] = $data['id'];
+                $_SESSION['role'] = $data['role'];
+            } else {
+                return false;
             }
+        } 
+        return false; 
+    }
+
+    public function useAuth() {
+        if (isset($_SESSION['user_login'])) {
+            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['user_login']]);
+            $user = $stmt->fetch();
+            if ($user) {
+                return $user;
+            } else {
+                session_destroy();
+                return null;
+            }
+        } else {
+            return null; 
         }
+    }
+
+    public function logOut() {
+        unset($_SESSION['user_login']);
+        header('location: /');
+        exit;
     }
 }

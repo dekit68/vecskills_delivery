@@ -14,14 +14,21 @@ class Data {
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            return "Error: " . $e->getMessage();
+            return $this->handleError($e);
         }
     }
 
-    public function getWhere($conditions) {
+    public function getFoodWithDetails() {
         try {
-            $sql = "SELECT * FROM $this->table_name WHERE {$conditions}";
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    food.*, 
+                    shop.name AS shopname, 
+                    food_type.name AS foodtype 
+                FROM food 
+                    JOIN shop ON food.shop_id = shop.id 
+                    JOIN food_type ON food.type_id = food_type.id
+            ");
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
@@ -29,52 +36,43 @@ class Data {
         }
     }
 
-    public function insert($data) {
+    public function getWhere($conditions, $params = []) {
         try {
-            $columns = implode(", ", array_keys($data));
-            $values = ":" . implode(", :", array_keys($data));
+            $stmt = $this->pdo->prepare("SELECT * FROM $this->table_name WHERE {$conditions}");
+            $stmt->execute($params);
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            return $this->handleError($e);
+        }
+    }
 
-            $sql = "INSERT INTO $this->table_name ({$columns}) VALUES ({$values})";
-            $stmt = $this->pdo->prepare($sql);
-
-            foreach ($data as $key => $value) {
-                $stmt->bindValue(":$key", $value);
-            }
+    public function getOne($column, $value) {
+        try {
+            $stmt = $this->pdo->prepare("SELECT * FROM $this->table_name WHERE {$column} = :value");
+            $stmt->bindParam(':value', $value);
             $stmt->execute();
-            return "Record inserted successfully!";
+            return $stmt->fetch();
         } catch (PDOException $e) {
             return "Error: " . $e->getMessage();
         }
     }
 
-    public function update($data, $conditions) {
+    public function delete($conditions, $params = []) {
         try {
-            $set = "";
-            foreach ($data as $key => $value) {
-                $set .= "$key = :$key, ";
-            }
-            $set = rtrim($set, ", ");
-
-            $sql = "UPDATE $this->table_name SET {$set} WHERE {$conditions}";
-            $stmt = $this->pdo->prepare($sql);
-
-            foreach ($data as $key => $value) {
-                $stmt->bindValue(":$key", $value);
-            }
-
-            $stmt->execute();
-            return "Record updated successfully!";
+            $stmt = $this->pdo->prepare("DELETE FROM $this->table_name WHERE {$conditions}");
+            $stmt->execute($params);
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             return "Error: " . $e->getMessage();
         }
     }
 
-    public function delete($conditions) {
+    public function getTotalQty($userId) {
         try {
-            $sql = "DELETE FROM $this->table_name WHERE {$conditions}";
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->pdo->prepare("SELECT SUM(qty) FROM $this->table_name WHERE uses_id = :userId");
+            $stmt->bindParam(":userId", $userId);
             $stmt->execute();
-            return "Record deleted successfully!";
+            return $stmt->fetchColumn();
         } catch (PDOException $e) {
             return "Error: " . $e->getMessage();
         }

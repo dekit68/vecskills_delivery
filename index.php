@@ -10,6 +10,12 @@ route($base, function(){
     if (!isset($_SESSION['user_login'])) {
         include 'views/home.php';
     } else {
+        $db = new Database();
+        $pdo = $db->getConnect(); 
+        require 'class/modules/data.php';
+        require 'class/modules/users.php';
+        $user = new Users($pdo);
+        $useAuth = $user->useAuth();
         if ($_SESSION['role'] === "admin") {
             include 'views/services/admin.php';
         } elseif ($_SESSION['role'] === "manager") {
@@ -17,6 +23,11 @@ route($base, function(){
         } elseif ($_SESSION['role'] === "delivery") {
             include 'views/services/delivery.php';
         } else {
+            $table_food_type = new Data($pdo, 'food_type');
+            $table_shop = new Data($pdo, 'shop');
+            $table_food = new Data($pdo, 'food');
+            $table_order = new Data($pdo, 'orders');     
+            $table_cart = new Data($pdo, 'cart');   
             include 'views/services/user.php';
         }
     }
