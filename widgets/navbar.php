@@ -9,7 +9,7 @@
 
         <div class="collapse navbar-collapse" id="menu">
             <ul class="ms-auto navbar-nav">
-                <?php if(isset($_SESSION['user_login'])) { ?>
+                <?php if(isset($useAuth['user'])) { ?>
                 <li class="dropdown nav-item">
                     <a href="" class="dropdown-toggle nav-link" data-bs-toggle="dropdown"><?= $useAuth['user']['fname']." ". $useAuth['user']['lname']; ?></a>
                     <ul class="dropdown-menu">
