@@ -44,3 +44,12 @@ $(document).ready(function () {
     $('#filtershop').on('change', SetFilter)
     $('#filterfood').on('change', SetFilter)
 })
+
+document.addEventListener("DOMContentLoaded", function(){
+    var toastEl = document.getElementById('liveToast');
+    var toast = new bootstrap.Toast(toastEl, {
+        autohide: true,
+        delay: 5000
+    });
+    toast.show();
+});

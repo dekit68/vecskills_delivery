@@ -1,10 +1,7 @@
 <?php
     $allShops = $table_shop->getAll();
     $allFood_type = $table_food_type->getAll();
-    $listFood = $table_food->getFoodWithDetails();
     $orders = $table_order->getWhere("user_id = ?", [$_SESSION['user_login']]);
-    $totalQty = $table_cart->getTotalQty($_SESSION['user_login']);
-    $cart = $table_cart->getCartWithFoodDetails($_SESSION['user_login']);
     $all = 0;
 ?>
 <!DOCTYPE html>
@@ -127,49 +124,9 @@
                 <h5 class="fw-5">รายการตระกล้า</h5>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmPay">ชำระเงิน</button>
             </div>
-
-            <table class="table table-hover table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>ลำดับ</th>
-                        <th>ชื่ออาหาร</th>
-                        <th></th>
-                        <th>จำนวน</th>
-                        <th>ราคา</th>
-                        <th>ส่วนลด</th>
-                        <th>จัดการ</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <?php foreach ($cart as $data) :
-                        $disss = $data['qty'] * $data['price'] * $data['discount'] / 100;
-                        $total = $data['qty'] * $data['price'] - $disss;
-                        $all += $total;    
-                    ?>
-                    <tr>
-                        <td><?= $data['id'] ?></td>
-                        <td><?= $data['food_name'] ?></td>
-                        <td><img src="<?= $data['food_img'] ?>" alt="" width="100px"></td>
-                        <td><?= $data['qty'] ?></td>
-                        <td><?= $data['price'] ?></td>
-                        <td><?= $data['discount'] ?> %</td>
-                        <td>
-                            <form action="core/cart.php?type=delete" method="post">
-                                <input type="hidden" name="id" value="<?= $data['id'] ?>">
-                                <button type="submit" class="btn btn-danger">ลบ</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="6" class="text-end fw-bold">ราคารวม</td>
-                        <td class="fw-bold text-success"><?= $all ?> บาท</td>
-                    </tr>
-                </tfoot>
-            </table>
+            <?php
+                $ui->table($head, $body, $data);
+            ?>
         </div>
         <div class="modal fade" id="confirmPay">
             <div class="modal-dialog modal-dialog-centered">
