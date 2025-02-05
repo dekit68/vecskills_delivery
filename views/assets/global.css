@@ -1,11 +1,10 @@
 @font-face {
     font-family: 'Kanit';
-    src: url(./Kanit-Regular.ttf);
+    src: url(./css/Kanit-Regular.ttf);
 }
 
 html,body{
     font-family: 'Kanit';
-
 }
 
 .lending-page{
