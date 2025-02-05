@@ -1,5 +1,5 @@
 <!-- Admin Modal -->
-<?php if ($useAuth['user']['role'] == "admin") { ?>
+<?php if (isset($useAuth['user']) && $useAuth['user']['role'] == "admin") { ?>
 <?php foreach ($shoptype as $delete) { ?>
 <div class="modal fade" id="delete_type-<?= $delete['id'] ?>">
     <div class="modal-dialog modal-dialog-centered">
@@ -17,7 +17,6 @@
     </div>
 </div>
 <?php } ?>
-
 <?php foreach ($userAll as $edit) { ?>
 <div class="modal fade" id="edit-user-<?= $edit['id'] ?>">
     <div class="modal-dialog modal-dialog-centered">

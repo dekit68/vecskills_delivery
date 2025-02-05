@@ -1,14 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>
-    <?php
-        include 'widgets/navbar.php';
-    ?>
 
     <div class="modal fade" id="login">
         <div class="modal-dialog modal-dialog-centered">
@@ -101,8 +90,3 @@
             </div>
         </div>
     </div>
-
-
-
-
-</html>

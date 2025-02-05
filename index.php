@@ -1,55 +1,31 @@
 <?php 
-
 $routes = [];
 session_start();
-require 'base.php';
 
-route($base, function(){
-    include 'db.php';
-    include 'assets.php';
-    require 'class/modules/utils.php';
+route('/', function(){
+    loadRequirement();
     $ui = new UIInterface();
-   
-    if (isset($_SESSION['error'])) {
-        $ui->ntdotjsx($_SESSION['error'], "danger");
-        unset($_SESSION['error']);
+    // Session-based Notifications
+    foreach (['error' => 'danger', 'success' => 'success'] as $key => $type) {
+        if (isset($_SESSION[$key])) {
+            $ui->ntdotjsx($_SESSION[$key], $type);
+            unset($_SESSION[$key]);
+        }
     }
 
-    if (isset($_SESSION['success'])) {
-        $ui->ntdotjsx($_SESSION['success'], "success");
-        unset($_SESSION['success']);
-    }
-
+    // Authentication Check
     if (!isset($_SESSION['user_login'])) {
         include 'views/home.php';
-    } else {
-
-        $db = new Database();
-        $pdo = $db->getConnect(); 
-        
-        require 'class/modules/data.php';
-        require 'class/modules/users.php';
-
-        $table_food_type = new Data($pdo, 'food_type');
-        $table_shop_type = new Data($pdo, 'shop_type');
-        $table_shop = new Data($pdo, 'shop');
-        $table_food = new Data($pdo, 'food');
-        $table_order = new Data($pdo, 'orders');     
-        $table_cart = new Data($pdo, 'cart');
-        $table_user = new Data($pdo, 'users');
-        $user = new Users($pdo);
-        $useAuth = $user->useAuth();
-
-
-        if ($_SESSION['role'] === "admin") {
-            include 'views/services/admin.php';
-        } elseif ($_SESSION['role'] === "manager") {
-            include 'views/services/manager.php';
-        } elseif ($_SESSION['role'] === "delivery") {
-            include 'views/services/delivery.php';
-        } else {
-            include 'views/services/user.php';
-        }
+    } else {        
+        // Role-based Routing
+        $role = $_SESSION['role'] ?? 'user';
+        $roleViewMap = [
+            'admin'    => 'views/services/admin.php',
+            'manager'  => 'views/services/manager.php',
+            'delivery' => 'views/services/delivery.php',
+            'user'     => 'views/services/user.php',
+        ];
+        include $roleViewMap[$role] ?? 'views/services/user.php';
     }
 });
 
@@ -69,4 +45,16 @@ function run() {
     }
 }
 
+function loadRequirement() {
+    require_once 'db.php';
+    require_once 'class/modules/utils.php';
+    require_once 'class/modules/data.php';
+    require_once 'class/modules/users.php';
+    $database = new Database();
+    $dbConnect = $database->getConnect(); 
+    $dataHandler = new Data($dbConnect, NULL); 
+    $userManager = new Users($dbConnect); 
+    $useAuth = $userManager->useAuth();
+    require_once 'widgets/assets.php';
+}
 ?>
