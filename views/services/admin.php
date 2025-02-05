@@ -10,10 +10,6 @@
     $shoptypebody = ['name'];
     $userhead = ['ID', 'ชื่อ', 'อีเมล', 'เบอร์โทร', 'ที่อยู่', 'สถานะ'];
     $userbody = ['id', 'fname lname', 'email', 'phone', 'address','status'];
-
-    // Components or Widgets
-    include 'widgets/navbar.php'; 
-    include 'widgets/modal.php';
 ?>
 
 <div class="container my-5">

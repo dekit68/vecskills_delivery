@@ -4,11 +4,7 @@
 
     $id = $_GET['id'];
 
-    $stmt = $pdo->prepare("SELECT orders.*, 
-shop.name AS shop_name 
-FROM orders 
-INNER JOIN shop ON orders.shop_id = shop.id
-WHERE orders.id = ?");
+    $stmt = $pdo->prepare("SELECT orders.*, shop.name AS shop_name FROM orders INNER JOIN shop ON orders.shop_id = shop.idWHERE orders.id = ?");
     $stmt->execute([$id]);
     $order = $stmt->fetch();
 
