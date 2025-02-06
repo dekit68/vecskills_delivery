@@ -1,7 +1,14 @@
+
+<?php
+if (isset($useAuth['user'])) {
+    $user_id = $useAuth['user']['id'];
+    $all_count = $dataHandler->get2("SELECT SUM(qty) FROM cart WHERE user_id = $user_id");
+}
+?>
 <nav class="navbar navbar-dark bg-dark navbar-expand-md fixed-top">
     <div class="container">
         <a href="" class="navbar-brand">
-            <img src="assets/logo.png" alt=""> ระบบสั่งจองอาหารออนไลน์
+            <img src="assets/logo.png" alt=""> Atmec delivery
         </a>
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
             <span class="navbar-toggler-icon"></span>
@@ -30,27 +37,29 @@
 <div class="nav-scroller">
     <nav class="nav">
         <?php if ($role === "admin"): ?>
-            <a href="#" class="nav-link nav-content" data-content="user">จัดการผู้ใช้งาน</a>
-            <a href="#" class="nav-link nav-content" data-content="manager">จัดการผู้ใช้งาน</a>
-            <a href="#" class="nav-link nav-content" data-content="delivery">จัดการผู้ใช้งาน</a>
-            <a href="#" class="nav-link nav-content" data-content="shop">จัดการร้านอาหาร</a>
-            <a href="#" class="nav-link nav-content" data-content="shoptype">จัดการประเภทร้านอาหาร</a>
+            <a href="#" class="nav-link nav-content" data-content="content_user">จัดการผู้ใช้งาน</a>
+            <a href="#" class="nav-link nav-content" data-content="content_shop">จัดการร้านอาหาร</a>
+            <a href="#" class="nav-link nav-content" data-content="content_shop_type">จัดการประเภทร้านอาหาร</a>
         <?php endif; ?>
         <?php if ($role === "manager"): ?>
-            <a href="#" class="nav-link nav-content" data-content="main">หน้าหลัก</a>
+            <a href="#" class="nav-link nav-content" data-content="content_main">หน้าหลัก</a>
             <?php if($useAuth['shop'] && $useAuth['shop']['status'] == 1) : ?>
-            <a href="#" class="nav-link nav-content" data-content="user">จัดการผู้ใช้งาน</a>
-            <a href="#" class="nav-link nav-content" data-content="shop">เมนูอาหาร</a>
-            <a href="#" class="nav-link nav-content" data-content="shoptype">ประเภทอาหาร</a>
+            <a href="#" class="nav-link nav-content" data-content="content_menu">เมนูอาหาร</a>
+            <a href="#" class="nav-link nav-content" data-content="content_food_type">ประเภทอาหาร</a>
             <?php endif; ?>
         <?php endif; ?>
         <?php if ($role === "delivery"): ?>
-            <a href="#" class="nav-link nav-content" data-content="user">รับออเดอร์</a>
-            <a href="#" class="nav-link nav-content" data-content="delivery">ยืนยัน</a>
+            <a href="#" class="nav-link nav-content" data-content="content_req">รับออเดอร์</a>
+            <a href="#" class="nav-link nav-content" data-content="content_apply">ยืนยัน</a>
         <?php endif; ?>
         <?php if ($role === "user"): ?>
-            <a href="#" class="nav-link nav-content" data-content="user">เมนูอาหาร</a>
-            <a href="#" class="nav-link nav-content" data-content="user">ตะกล้า</a>
+            <a href="#" class="nav-link nav-content" data-content="content_main">เมนูอาหาร</a>
+            <a href="#" class="nav-link nav-content" data-content="content_cart">ตะกล้า
+            <?php if($all_count) { ?>
+                <span class="badge bg-light text-danger"><?= $all_count; ?></span>
+            <?php } ?>
+            </a>
+            <a href="#" class="nav-link nav-content" data-content="content_history">ประวัติการสั่งซื้อ</a>
         <?php endif; ?>
     </nav>
 </div>

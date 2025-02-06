@@ -1,105 +1,85 @@
-<?php
+<?php 
 class Data {
     private $pdo;
-    private $table_name;
 
-    public function __construct($pdo, $table_name) {
+    public function __construct($pdo) {
         $this->pdo = $pdo;
-        $this->table_name = $table_name;
     }
 
     public function get($req) {
-        try {
-            $stmt = $this->pdo->prepare($req);
-            $stmt->execute();
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return $_SESSION['error'] = $e->getMessage();
-        }
+        $stmt = $this->pdo->prepare($req);
+        $stmt->execute();
+        return $stmt->fetchAll();
     }
 
-    public function add($req, $wh, $params = []) {
-        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name ($req) VALUES ($wh)");
-        $stmt->execute($params);
-        try {
-            $_SESSION['success'] = "เพิ่มข้อมูลสำเร็จ";
-        } catch (PDOException $e) {
-            $_SESSION['error'] = $e->getMessage();
-        }
+    public function get1($req) {
+        $stmt = $this->pdo->prepare($req);
+        $stmt->execute();
+        return $stmt->fetch();
     }
 
-    public function update($req, $wh, $params = []) {
-        $stmt = $this->pdo->prepare("UPDATE $this->table_name SET $req WHERE $wh");
-        $stmt->execute($params);
+    public function get2($req) {
+        $stmt = $this->pdo->prepare($req);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function add($table_name, $req , $vl, $params = []) {
         try {
-            $_SESSION['success'] = "แก้ไขข้อมูลสำเร็จ";
+            $stmt = $this->pdo->prepare("INSERT INTO $table_name ($req) VALUES ($vl)");
+            $stmt->execute($params);
+            return true;
         } catch (PDOException $e) {
             $_SESSION['error'] = $e->getMessage();
         }
     }
 
-    public function delete($wh, $param = []) {
-        $stmt = $this->pdo->prepare("DELETE FROM $this->table_name WHERE $wh");
-        $stmt->execute($param);
+    public function update($table_name, $req, $wh, $params = []) {
+        var_dump($params);
         try {
-            $_SESSION['error'] = "ลบข้อมูลสำเร็จ";
+            $stmt = $this->pdo->prepare("UPDATE $table_name SET $req WHERE $wh");
+            $stmt->execute($params);
+            return true;
         } catch (PDOException $e) {
             $_SESSION['error'] = $e->getMessage();
         }
     }
 
-    public function CheckOut($useid) {
-        $stmt = $this->pdo->prepare("SELECT * FROM cart WHERE uses_id = ?");
-        $stmt->execute([$useid]);
-        $cart = $stmt->fetchAll();
+    public function delete($table_name, $wh, $param) {
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM $table_name WHERE $wh");
+            $stmt->execute([$param]);
+            return true;
+        } catch (PDOException $e) {
+            $_SESSION['error'] = $e->getMessage();
+        }
+    }
 
+    public function checkout($userId) {
+        $cart = $this->get("SELECT * FROM cart WHERE user_id = $userId");
         if (empty($cart)) {
-            $_SESSION['error'] = "ตะกร้าของคุณว่างเปล่า กรุณาเพิ่มสินค้าก่อนสั่งซื้อ";
-            return;
+            return $_SESSION['error'] = "ไม่มีของในตะกล้าเว้ยยยย";
         }
+        $grouped = [];
+        foreach ($cart as $datas) {
+            $grouped[$datas['shop_id']][] = $datas;
+        }
+        foreach ($grouped as $shop_id => $items) {
+            var_dump($shop_id);
+            $stmt = $this->pdo->prepare("INSERT INTO orders (time, delivery_status, user_id, shop_id) VALUES (NOW(), 0, ?, ?)");
+            $stmt->execute([$userId, $shop_id]);
+            $orders = $this->pdo->lastInsertId();
 
+            foreach ($items as $data) {
+                $this->add('order_detail', 'id, food_id, price, discount, qty', '?,?,?,?,?', [$orders,$data['food_id'],$data['price'],$data['discount'],$data['qty']]);
+                $this->delete('cart', 'id = ?', $data['id']);
+            }
+        }
         try {
-            $grouped = [];
-            foreach ($cart as $datas) {
-                $grouped[$datas['shop_id']][] = $datas;
-            }
-            foreach ($grouped as $shop_id => $items) {
-                $stmt = $this->pdo->prepare("INSERT INTO orders (date, delivery_status, user_id, shop_id) VALUES (NOW(), 0, ?, ?)");
-                $stmt->execute([$useid, $shop_id]);
-                $orders = $this->pdo->lastInsertId();
-        
-                foreach ($items as $data) {
-                    $stmt = $this->pdo->prepare("INSERT INTO order_detail (id, food_id, price, discount, qty) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([
-                        $orders,
-                        $data['food_id'],
-                        $data['price'],
-                        $data['discount'],
-                        $data['qty']
-                    ]);
-                    $stmt = $this->pdo->prepare("DELETE FROM cart WHERE id = ?");
-                    $stmt->execute([$data['id']]);
-                }
-            }
-            $_SESSION['success'] = "สั่งอาหารแล้ว Delivery มาส่งนะครับ 😁";
+            $_SESSION['success'] = "ลงแล้ว 55555555555555";
         } catch (PDOException $e) {
-            $_SESSION['error'] = "เกิดข้อผิดพลาด: " . $e->getMessage();
+            $_SESSION['error'] = $e->getMessage();
         }
     }
-
-    // กำหนดข้อมูลที่ต้องการอัปเดต
-    // $req = 'fname = ?, lname = ?'; // ค่าที่จะอัปเดต
-    // $wh = 'id = ?'; // เงื่อนไขการค้นหาข้อมูล
-
-    // // กำหนดค่าพารามิเตอร์ที่ต้องใช้ในการแทนที่
-    // $params = ['Nut', 'to', 1]; // ค่าที่จะถูกแทนที่ใน ? (fname, lname, id)
-
-    // // เรียกใช้ฟังก์ชัน update
-    // $user->update($req, $wh, $params);
-
-    // $user->add(
-    //     'name, email, age',     // ชื่อคอลัมน์
-    //     '?, ?, ?',              // Placeholder สำหรับค่า
-    //     ['นัท', 'nut@example.com', 18]  // ข้อมูลจริง
-    // );
 }
+?>

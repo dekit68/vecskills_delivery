@@ -3,46 +3,20 @@
     src: url(./css/Kanit-Regular.ttf);
 }
 
-html,body{
+body{
     font-family: 'Kanit';
-}
-
-.lending-page{
-    margin-top: 190px;
-    background-color: rgb(255, 195, 167);
-}
-.lending-page img{
-    max-width: 100%;
-    height: auto;
-}
-
-.lending-title{
-    margin-left: 100px;
-}
-
-.lending-title h4{
-    font-size: 50px;
-}
-
-.navbar-brand img{
-    width: 35px;
-    height: 35px;
+    background-color: rgb(250, 250, 250);
 }
 
 .nav-scroller{
-    margin-top: 61px;
-    padding: 0.5rem;
-    background-color: rgb(43, 52, 59);
-}
-
-@media (max-width: 350px) {
-    .nav-scroller{
-        margin-top: 100px;
-    }
+    margin-top: 56px;
+    background-color: rgb(66, 76, 87);
+    padding: 8px;
 }
 
 .nav-link{
     transition:transform 0.2s ease;
+
 }
 
 .nav-link:hover{
@@ -50,33 +24,25 @@ html,body{
 }
 
 .nav-scroller .nav-link{
-    color: rgb(226, 226, 226);
+    color: rgb(241, 241, 241);
 }
 
 .nav-scroller .nav-link:hover{
     color: white;
-   
-}
-
-.contents{
-    display: none;
 }
 
 .contents:first-of-type{
+    display: none;
+}
+
+.contents{
     display: block;
 }
 
-.bill-container{
-    width: 600px;
-    margin: 70px auto;
-    border: 1px solid rgb(184, 184, 184);
-    border-radius: 10px;
-    padding: 30px;
-}
-.bill-header{
+.title-bill h5{
     text-align: center;
 }
-/* 
+
 .card {
     border: none;
-} */
+}
