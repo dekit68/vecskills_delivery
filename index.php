@@ -2,14 +2,22 @@
 $routes = [];
 session_start();
 
+require_once 'db.php';
+require_once 'class/modules/utils.php';
+require_once 'class/modules/data.php';
+require_once 'class/modules/users.php';
+
 route('/', function(){
+    global $interface;
+    global $useAuth;
+    global $dataHandler;
+    
     loadRequirement();
-    $ui = new UIInterface();
     // Session-based Notifications
-    foreach (['error' => 'danger', 'success' => 'success'] as $key => $type) {
-        if (isset($_SESSION[$key])) {
-            $ui->ntdotjsx($_SESSION[$key], $type);
-            unset($_SESSION[$key]);
+    foreach (['error' => 'danger', 'success' => 'success'] as $data => $type) {
+        if (isset($_SESSION[$data])) {
+            $interface->ntdotjsx($_SESSION[$data], $type);
+            unset($_SESSION[$data]);
         }
     }
 
@@ -19,13 +27,14 @@ route('/', function(){
     } else {        
         // Role-based Routing
         $role = $_SESSION['role'] ?? 'user';
-        $roleViewMap = [
+        $ViewMap = [
             'admin'    => 'views/services/admin.php',
             'manager'  => 'views/services/manager.php',
             'delivery' => 'views/services/delivery.php',
             'user'     => 'views/services/user.php',
         ];
-        include $roleViewMap[$role] ?? 'views/services/user.php';
+        loadRequirement();
+        include $ViewMap[$role] ?? 'views/services/user.php';
     }
 });
 
@@ -46,15 +55,15 @@ function run() {
 }
 
 function loadRequirement() {
-    require_once 'db.php';
-    require_once 'class/modules/utils.php';
-    require_once 'class/modules/data.php';
-    require_once 'class/modules/users.php';
-    $database = new Database();
-    $dbConnect = $database->getConnect(); 
-    $dataHandler = new Data($dbConnect, NULL); 
-    $userManager = new Users($dbConnect); 
+    global $interface;
+    global $useAuth;
+    global $dataHandler;
+    $db = new Database();
+    $pdo = $db->getConnect(); 
+    $dataHandler = new Data($pdo, NULL); 
+    $userManager = new Users($pdo); 
     $useAuth = $userManager->useAuth();
+    $interface = new UIInterface();
     require_once 'widgets/assets.php';
 }
 ?>

@@ -15,7 +15,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="#" class="dropdown-item nav-content" data-content="profile">โปรไฟล์</a></li>
-                            <li><a href="class/handle.php?logout" class="dropdown-item text-danger">ออกจากระบบ</a></li>
+                            <li><button data-bs-toggle="modal" data-bs-target="#logout" class="dropdown-item text-danger">ออกจากระบบ</button></li>
                         </ul>
                     </li>
                 <?php } else { ?> 
@@ -31,12 +31,14 @@
     <nav class="nav">
         <?php if ($role === "admin"): ?>
             <a href="#" class="nav-link nav-content" data-content="user">จัดการผู้ใช้งาน</a>
+            <a href="#" class="nav-link nav-content" data-content="manager">จัดการผู้ใช้งาน</a>
+            <a href="#" class="nav-link nav-content" data-content="delivery">จัดการผู้ใช้งาน</a>
             <a href="#" class="nav-link nav-content" data-content="shop">จัดการร้านอาหาร</a>
             <a href="#" class="nav-link nav-content" data-content="shoptype">จัดการประเภทร้านอาหาร</a>
         <?php endif; ?>
         <?php if ($role === "manager"): ?>
             <a href="#" class="nav-link nav-content" data-content="main">หน้าหลัก</a>
-            <?php if($useAuth['shop'] && $useAuth['shop']['status']) : ?>
+            <?php if($useAuth['shop'] && $useAuth['shop']['status'] == 1) : ?>
             <a href="#" class="nav-link nav-content" data-content="user">จัดการผู้ใช้งาน</a>
             <a href="#" class="nav-link nav-content" data-content="shop">เมนูอาหาร</a>
             <a href="#" class="nav-link nav-content" data-content="shoptype">ประเภทอาหาร</a>
