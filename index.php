@@ -5,28 +5,24 @@ session_start();
 require_once 'db.php';
 require_once 'class/modules/utils.php';
 require_once 'class/modules/data.php';
-require_once 'class/modules/users.php';
+require_once 'class/modules/user.php';
 
 route('/', function(){
     global $interface;
     global $useAuth;
     global $dataHandler;
-    
     loadRequirement();
-    // Session-based Notifications
-    foreach (['error' => 'danger', 'success' => 'success'] as $data => $type) {
+    foreach (['error' => 'danger', 'success' => 'primary'] as $data => $type) {
         if (isset($_SESSION[$data])) {
             $interface->ntdotjsx($_SESSION[$data], $type);
             unset($_SESSION[$data]);
         }
     }
 
-    // Authentication Check
     if (!isset($_SESSION['user_login'])) {
         include 'views/home.php';
     } else {        
-        // Role-based Routing
-        $role = $_SESSION['role'] ?? 'user';
+        $role = $_SESSION['role'];
         $ViewMap = [
             'admin'    => 'views/services/admin.php',
             'manager'  => 'views/services/manager.php',
@@ -34,7 +30,8 @@ route('/', function(){
             'user'     => 'views/services/user.php',
         ];
         loadRequirement();
-        include $ViewMap[$role] ?? 'views/services/user.php';
+        include $ViewMap[$role];
+        $interface->ConA('ออกจากระบบ', 'กดยืนยันเพื่อออกจากระบบ 🎯', 'danger', 'logout');
     }
 });
 
